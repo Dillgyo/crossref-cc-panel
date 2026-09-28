@@ -1,0 +1,14 @@
+# 저장소 안에서는 LF로 보관한다. Windows 작업 사본에서는 CRLF로 받는다.
+* text=auto eol=lf
+
+*.py    text eol=lf
+*.md    text eol=lf
+*.txt   text eol=lf
+*.cff   text eol=lf
+*.csv   text eol=lf
+*.jsonl text eol=lf
+
+*.png   binary
+*.pdf   binary
+*.xlsx  binary
+*.docx  binary

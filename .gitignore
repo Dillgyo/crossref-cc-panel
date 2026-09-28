@@ -1,0 +1,33 @@
+# Crossref 공개 데이터 파일 원본 (연도별 185~223 GB)
+*.tar
+
+# 중간 산출물
+*.parquet
+*.gz
+parquet/
+_tmp/
+
+# 검증 과정에서 생성되는 대용량 CSV
+raw_check_*.csv
+raw_trace_*.csv
+trace_targets.csv
+missing_all.csv
+
+# data/ 는 논문 재현에 필요하므로 위 규칙에서 제외한다
+!data/
+!data/*.csv
+!data/*.jsonl
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.env
+
+# 편집기·운영체제
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+desktop.ini
