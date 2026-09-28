@@ -36,7 +36,7 @@ pip install -r requirements.txt
 
 전체 소요 시간은 기록해 두지 않았다. 추출 단계는 `01_extract.py`에 `--limit 300`을 붙이면 앞쪽 300개 파일만 처리하고 전체 처리 시간을 추정해 출력하므로, 자신의 환경에서 먼저 재어 보기를 권한다.
 
-DuckDB는 스크립트에 따라 메모리 한도를 4~6 GB, 스레드를 4개로 두고, 임시 폴더를 SSD의 `_tmp`에 지정하여 실행하였다. 스레드 수는 코어 수보다 적게 설정한 값이므로, 더 늘리면 시간이 줄어들 수 있다. RAM이 더 작은 환경에서도 메모리 한도를 낮추면 동작하나 시간이 늘어난다.
+DuckDB는 스크립트에 따라 메모리 한도를 4–6 GB, 스레드를 4개로 두고, 임시 폴더를 SSD의 `_tmp`에 지정하여 실행하였다. 스레드 수는 코어 수보다 적게 설정한 값이므로, 더 늘리면 시간이 줄어들 수 있다. RAM이 더 작은 환경에서도 메모리 한도를 낮추면 동작하나 시간이 늘어난다.
 
 ### CC 기재 판정 규칙
 
@@ -155,9 +155,9 @@ python 01_extract.py D:\crossref\April_2023_Public_Data_File_from_Crossref.tar 2
 | `member`, `publisher`, `container_title` | 회원사 번호, 출판사명, 저널명 |
 | `pub_year` | 출판연도 |
 | `created` | Crossref 최초 등록 일시 |
-| `cc23`~`cc26` | 각 시점 CC 기재 여부 (1/0) |
-| `dep23`~`dep26` | 각 시점 `deposited` 일시 |
-| `in24`~`in26` | 해당 시점 파일에 레코드가 있었는지 (1/0) |
+| `cc23`–`cc26` | 각 시점 CC 기재 여부 (1/0) |
+| `dep23`–`dep26` | 각 시점 `deposited` 일시 |
+| `in24`–`in26` | 해당 시점 파일에 레코드가 있었는지 (1/0) |
 
 `cc`와 `in`을 분리한 것이 이 패널의 핵심이다. 라이선스 기재가 사라진 것과 레코드 자체가 사라진 것은 다른 현상이므로 구분하여 집계한다.
 
@@ -165,14 +165,14 @@ python 01_extract.py D:\crossref\April_2023_Public_Data_File_from_Crossref.tar 2
 
 | 스크립트 | 논문의 어느 부분 |
 |---|---|
-| `05_tables.py` | 본문 표 1~9 전부, 그림 1~3의 작도용 데이터, 4.8절 라이선스 시작일 |
-| `06_figures.py` | `05_tables.py`가 저장한 CSV로 그림 1~3을 그린다 |
-| `07_supplement.py` | 보충자료 표 S1~S5, 본문 4.4·4.5·4.9절 |
+| `05_tables.py` | 본문 표 1–9 전부, 그림 1–3의 작도용 데이터, 4.8절 라이선스 시작일 |
+| `06_figures.py` | `05_tables.py`가 저장한 CSV로 그림 1–3을 그린다 |
+| `07_supplement.py` | 보충자료 표 S1–S5, 본문 4.4·4.5·4.9절 |
 | `08_unpaywall.py` | 보충자료 표 S6, 본문 5.4절 |
 | `09_excluded_224.py` | 제외한 224종을 복원하고 표 S3의 해당 행을 재계산. `data/doaj_excluded_224.csv`를 만든다 |
 | `10_member_stable.py` | member가 두 연도판에서 같은 부분집합으로 4.4절 집중도를 다시 계산 |
 
-`05`~`10`은 논문에 실린 값을 스크립트 안의 `EXPECTED`에 담고 있으며, 계산 결과마다 `일치` 또는 `불일치 (원고 …)`를 함께 출력한다. 재현 여부를 출력만 보고 판단할 수 있다.
+`05`–`10`은 논문에 실린 값을 스크립트 안의 `EXPECTED`에 담고 있으며, 계산 결과마다 `일치` 또는 `불일치 (원고 …)`를 함께 출력한다. 재현 여부를 출력만 보고 판단할 수 있다.
 
 두 항목은 다음 규칙을 따른다.
 
@@ -201,13 +201,15 @@ crossref-cc-panel/
 ├── requirements.txt
 ├── CITATION.cff
 ├── LICENSE
+├── .gitignore
+├── .gitattributes
 ├── 01_extract.py            추출
 ├── 02_check_snapshot.py     추출 점검
 ├── 03_base_2023.py          기준 코호트
 ├── 04_state_panel.py        패널 구성
-├── 05_tables.py             본문 표 1~9, 그림 데이터
-├── 06_figures.py            그림 1~3
-├── 07_supplement.py         표 S1~S5
+├── 05_tables.py             본문 표 1–9, 그림 데이터
+├── 06_figures.py            그림 1–3
+├── 07_supplement.py         표 S1–S5
 ├── 08_unpaywall.py          표 S6
 ├── 09_excluded_224.py       제외 224종
 ├── 10_member_stable.py      member 유지 집합
@@ -223,7 +225,7 @@ crossref-cc-panel/
 
 ## 6. 재현 시 유의사항
 
-`01`~`04`와 `verify/`는 경로가 코드에 하드코딩되어 있다. `D:\crossref\...` 형태로 들어간 곳을 자신의 환경에 맞게 바꿔야 한다. `05`~`10`은 환경 변수로 덮어쓸 수 있다(4.2절).
+`01`–`04`와 `verify/`는 경로가 코드에 하드코딩되어 있다. `D:\crossref\...` 형태로 들어간 곳을 자신의 환경에 맞게 바꿔야 한다. `05`–`10`은 환경 변수로 덮어쓸 수 있다(4.2절).
 
 DOAJ 덤프는 시점에 따라 내용이 바뀐다. `data/doaj_panel_journals.csv`는 2026년 8월 17일판에서 만든 것이므로, 새 덤프로 다시 만들면 저널 수와 하한 연도가 달라진다.
 
