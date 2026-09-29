@@ -21,6 +21,9 @@
     출판사(member), DOAJ 저널, 저널명, 출판연도, 출판사 소재국,
     후속 등록 여부(dep26 > dep23)
 
+  저널이 둘 이상의 member에 걸치는 경우 레코드가 가장 많은 member에 배정한다. 임의로 고르면
+  실행마다 값이 달라진다. 무작위 재배치는 시드를 고정하여 10회 반복한다.
+
   이어서 저널이 출판사 위에 무엇을 더 설명하는지(출판사 내 저널 간 몫)를 낸다.
   이 값이 작으면 보완 여부를 가르는 단위는 저널이 아니라 출판사다.
 
@@ -53,7 +56,8 @@ EXPECTED = {
     "N": 2944831, "보완": 167779, "보완율": 5.70,
     "eta_출판사": 47.09, "eta_저널": 72.74, "eta_저널명": 73.15,
     "eta_출판연도": 1.22, "eta_후속등록": 13.50,
-    "증분_저널": 25.64,
+    # 중첩 분해 (2절) — 저널의 소속 출판사를 최빈 member로 고정한 뒤 확정한다
+    "중첩_출판사": 47.09,
     "집중_50": 4, "집중_80": 20, "집중_90": 61, "집중_95": 109,
 }
 
@@ -193,11 +197,18 @@ SELECT count(*), count(*) FILTER (WHERE k > 1) FROM
  (SELECT jid, count(DISTINCT member) k FROM bj GROUP BY jid)""").fetchone()
 log(f"\n  저널 {nest[0]:,}종 가운데 두 개 이상의 member에 걸친 저널 {nest[1]:,}종")
 log("  이 수가 작으면 저널은 출판사 안에 중첩된다고 보고 삼분할 수 있다.")
+log("  걸쳐 있는 저널은 레코드가 가장 많은 member에 배정한다(동수이면 member 번호가 작은 쪽).")
 
 r = con.execute("""
 WITH tot AS (SELECT count(*) n, avg(y) p FROM bj),
      pub AS (SELECT member, count(*) n_p, avg(y) p_p FROM bj GROUP BY 1),
-     jnl AS (SELECT jid, any_value(member) member, count(*) n_j, avg(y) p_j FROM bj GROUP BY 1)
+     -- 둘 이상의 member에 걸친 저널은 레코드가 가장 많은 member에 배정한다
+     jmode AS (SELECT jid, member FROM
+                (SELECT jid, member, count(*) c,
+                        row_number() OVER (PARTITION BY jid ORDER BY count(*) DESC, member) rn
+                 FROM bj GROUP BY jid, member) WHERE rn = 1),
+     jnl AS (SELECT b.jid, m.member, count(*) n_j, avg(b.y) p_j
+             FROM bj b JOIN jmode m USING (jid) GROUP BY 1, 2)
 SELECT (SELECT n FROM tot), (SELECT p FROM tot),
        (SELECT sum(n_p*(p_p-(SELECT p FROM tot))*(p_p-(SELECT p FROM tot))) FROM pub),
        (SELECT sum(j.n_j*(j.p_j-p.p_p)*(j.p_j-p.p_p)) FROM jnl j JOIN pub p USING (member)),
@@ -217,7 +228,9 @@ log(f"\n  [무작위 귀무 비교]")
 log("    각 출판사 안에서 저널 표를 무작위로 섞어 같은 크기 분포를 유지한 채 다시 계산한다.")
 log("    저널 구분이 아무 정보도 주지 않는다면 아래 값이 위의 '출판사 안의 저널 사이'와 같아야 한다.")
 vals = []
-for trial in range(3):
+NTRIAL = 10
+for trial in range(NTRIAL):
+    con.execute(f"SELECT setseed({0.10 + 0.07 * trial:.2f})")
     con.execute("DROP TABLE IF EXISTS perm")
     con.execute(f"""CREATE TABLE perm AS
 WITH a AS (SELECT doi, member, y, row_number() OVER (PARTITION BY member ORDER BY random()) rn FROM bj),
@@ -225,14 +238,25 @@ WITH a AS (SELECT doi, member, y, row_number() OVER (PARTITION BY member ORDER B
 SELECT a.doi, a.member, b.jid, a.y FROM a JOIN b ON a.member=b.member AND a.rn=b.rn""")
     rr = con.execute(f"""
 WITH pub AS (SELECT member, count(*) n_p, avg(y) p_p FROM perm GROUP BY 1),
-     jnl AS (SELECT jid, any_value(member) member, count(*) n_j, avg(y) p_j FROM perm GROUP BY 1)
+     jmode AS (SELECT jid, member FROM
+                (SELECT jid, member, count(*) c,
+                        row_number() OVER (PARTITION BY jid ORDER BY count(*) DESC, member) rn
+                 FROM perm GROUP BY jid, member) WHERE rn = 1),
+     jnl AS (SELECT p.jid, m.member, count(*) n_j, avg(p.y) p_j
+             FROM perm p JOIN jmode m USING (jid) GROUP BY 1, 2)
 SELECT sum(j.n_j*(j.p_j-p.p_p)*(j.p_j-p.p_p)) FROM jnl j JOIN pub p USING (member)""").fetchone()[0]
     vals.append(100 * rr / sst2)
-    log(f"    {trial+1}회차  {100*rr/sst2:>6.2f}%")
-log(f"\n    실제 {100*ss_jwp/sst2:.2f}%  대  무작위 평균 {sum(vals)/len(vals):.2f}%")
-log("    차이가 크면 저널 구분은 집단 수에서 온 것이 아니다.")
+    log(f"    {trial+1:>2}회차  {100*rr/sst2:>6.2f}%")
+vals.sort()
+mid = vals[len(vals)//2] if len(vals) % 2 else (vals[len(vals)//2-1] + vals[len(vals)//2]) / 2
+log(f"\n    무작위 {NTRIAL}회  최소 {vals[0]:.2f}%  중앙값 {mid:.2f}%  최대 {vals[-1]:.2f}%")
+log(f"    실제 {100*ss_jwp/sst2:.2f}%  =  최대값의 {100*ss_jwp/sst2/vals[-1]:.0f}배")
+log("    시드를 고정하였으므로 다시 실행해도 같은 값이 나온다.")
 
-log(f"\n  [참고] 두 eta^2의 단순 차이  {check('증분_저널', round(100*ss_jwp/sst2, 2), 2)}%p")
+log(f"\n  [원고 대조]")
+log(f"    출판사 사이            {check('중첩_출판사', round(100*ss_pub/sst2, 2), 2)}%")
+log(f"    출판사 안의 저널 사이    {100*ss_jwp/sst2:.2f}%   ← 이 값을 원고에 적는다")
+log(f"    저널 안의 잔차          {100*ss_res/sst2:.2f}%   ← 이 값을 원고에 적는다")
 
 log("\n" + "=" * 76)
 log("3. 집중도")
