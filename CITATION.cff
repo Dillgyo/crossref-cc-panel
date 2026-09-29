@@ -11,6 +11,11 @@ authors:
     orcid: "https://orcid.org/0009-0005-5282-8584"
     affiliation: "Hanyang Women's University Library"
 repository-code: "https://github.com/Dillgyo/crossref-cc-panel"
+doi: "10.5281/zenodo.23019543"
+identifiers:
+  - type: doi
+    value: "10.5281/zenodo.23019543"
+    description: "모든 판본을 가리키는 Concept DOI"
 license: MIT
 version: 1.0.0
 date-released: "2026-09-28"

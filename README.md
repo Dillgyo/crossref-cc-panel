@@ -2,10 +2,13 @@
 
 Crossref 공개 데이터 파일(Public Data File) 네 개 시점에서 CC 라이선스 메타데이터를 추출하고, 동일 DOI 코호트의 기재 상태 변화를 추적하는 분석 코드이다.
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.23019543.svg)](https://doi.org/10.5281/zenodo.23019543)
+
 논문: (게재 확정 후 서지사항 기재)
 저자: 이하형 (Lee, Hahyeong) — [ORCID 0009-0005-5282-8584](https://orcid.org/0009-0005-5282-8584), Hanyang Women's University Library
+보존본: [10.5281/zenodo.23019543](https://doi.org/10.5281/zenodo.23019543) (Zenodo, 모든 판본을 가리키는 DOI)
 
-> **정리 중** — 논문 게재 시점에 이 문단을 삭제한다. 그때까지 각 스크립트를 다시 실행하여 논문 수치와 대조하고, 보존본 DOI를 이 문서에 적는다.
+> **정리 중** — 논문 게재 시점에 이 문단을 삭제하고 서지사항을 적는다. 그때까지 각 스크립트를 다시 실행하여 논문 수치와 대조한다.
 
 ---
 
