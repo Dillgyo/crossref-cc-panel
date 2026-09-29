@@ -48,6 +48,25 @@ OUT = os.environ.get("CROSSREF_VAR_OUT", f"{ROOT}/variance_out.txt")
 TMP = os.environ.get("CROSSREF_TMP", f"{ROOT}/_tmp")
 os.makedirs(TMP, exist_ok=True)
 
+# 본문에 적을 값
+EXPECTED = {
+    "N": 2944831, "보완": 167779, "보완율": 5.70,
+    "eta_출판사": 47.09, "eta_저널": 72.74, "eta_저널명": 73.15,
+    "eta_출판연도": 1.22, "eta_후속등록": 13.50,
+    "증분_저널": 25.64,
+    "집중_50": 4, "집중_80": 20, "집중_90": 61, "집중_95": 109,
+}
+
+
+def check(key, value, digits=None):
+    if key not in EXPECTED:
+        return f"{value:,}" if isinstance(value, int) else f"{value}"
+    exp = EXPECTED[key]
+    v = round(value, digits) if digits is not None else value
+    shown = f"{v:,}" if isinstance(v, int) else f"{v}"
+    return shown + ("  일치" if v == exp else f"  불일치 (원고 {exp})")
+
+
 logf = open(OUT, "w", encoding="utf-8")
 
 
@@ -136,8 +155,12 @@ WHERE {group_sql} IS NOT NULL""").fetchone()[0]
     ms_w = ss_w / df_w if df_w > 0 else float("nan")
     eta2 = ss_b / ss_t if ss_t else float("nan")
     eps2 = (ss_b - df_b * ms_w) / ss_t if ss_t else float("nan")
+    key = {"출판사 (member)": "eta_출판사", "DOAJ 저널": "eta_저널",
+           "저널명 (container_title)": "eta_저널명", "출판연도": "eta_출판연도",
+           "후속 등록 여부": "eta_후속등록"}.get(label)
+    mark = check(key, round(100*eta2, 2), 2) if key else f"{100*eta2:.2f}"
     log(f"  {label:<26} 집단 {k:>7,}  대상 {n_used:>10,}  "
-        f"eta^2 {100*eta2:>6.2f}%   epsilon^2 {100*eps2:>6.2f}%")
+        f"eta^2 {mark}   epsilon^2 {100*eps2:>6.2f}%")
     return eta2, eps2, ss_b, ss_t
 
 
@@ -161,22 +184,55 @@ log("\n" + "=" * 76)
 log("2. 저널은 출판사 위에 무엇을 더 설명하는가")
 log("=" * 76)
 
-r = con.execute(f"""
-WITH b AS (SELECT b.doi, b.member, d.jid, b.y FROM base b JOIN dj d USING (doi)),
-     tot AS (SELECT count(*) n, avg(y) p FROM b),
-     bypub AS (SELECT member, count(*) n_g, avg(y) p_g FROM b GROUP BY 1),
-     byjnl AS (SELECT jid, count(*) n_g, avg(y) p_g FROM b GROUP BY 1)
+# 저널이 출판사 안에 온전히 들어가는지 먼저 본다
+con.execute("""CREATE TABLE bj AS
+SELECT b.doi, b.member, d.jid, b.y FROM base b JOIN dj d USING (doi)
+WHERE b.member IS NOT NULL""")
+nest = con.execute("""
+SELECT count(*), count(*) FILTER (WHERE k > 1) FROM
+ (SELECT jid, count(DISTINCT member) k FROM bj GROUP BY jid)""").fetchone()
+log(f"\n  저널 {nest[0]:,}종 가운데 두 개 이상의 member에 걸친 저널 {nest[1]:,}종")
+log("  이 수가 작으면 저널은 출판사 안에 중첩된다고 보고 삼분할 수 있다.")
+
+r = con.execute("""
+WITH tot AS (SELECT count(*) n, avg(y) p FROM bj),
+     pub AS (SELECT member, count(*) n_p, avg(y) p_p FROM bj GROUP BY 1),
+     jnl AS (SELECT jid, any_value(member) member, count(*) n_j, avg(y) p_j FROM bj GROUP BY 1)
 SELECT (SELECT n FROM tot), (SELECT p FROM tot),
-       (SELECT sum(n_g*(p_g-(SELECT p FROM tot))*(p_g-(SELECT p FROM tot))) FROM bypub),
-       (SELECT sum(n_g*(p_g-(SELECT p FROM tot))*(p_g-(SELECT p FROM tot))) FROM byjnl),
-       (SELECT count(*) FROM bypub), (SELECT count(*) FROM byjnl)""").fetchone()
-n2, p2, ssb_pub, ssb_jnl, k_pub, k_jnl = r
+       (SELECT sum(n_p*(p_p-(SELECT p FROM tot))*(p_p-(SELECT p FROM tot))) FROM pub),
+       (SELECT sum(j.n_j*(j.p_j-p.p_p)*(j.p_j-p.p_p)) FROM jnl j JOIN pub p USING (member)),
+       (SELECT count(*) FROM pub), (SELECT count(*) FROM jnl)""").fetchone()
+n2, p2, ss_pub, ss_jwp, k_pub, k_jnl = r
 sst2 = n2 * p2 * (1 - p2)
-log(f"\n  저널에 연결된 미기재 {n2:,}건 기준")
-log(f"    출판사만                  eta^2 {100*ssb_pub/sst2:>6.2f}%   (집단 {k_pub:,})")
-log(f"    저널 (출판사 구분 없이)     eta^2 {100*ssb_jnl/sst2:>6.2f}%   (집단 {k_jnl:,})")
-log(f"    저널이 더 설명하는 몫                {100*(ssb_jnl-ssb_pub)/sst2:>6.2f}%p")
-log("\n  이 증분이 작으면 보완 여부를 가르는 단위는 저널이 아니라 출판사다.")
+ss_res = sst2 - ss_pub - ss_jwp
+log(f"\n  대상 {n2:,}건, 출판사 {k_pub:,}곳, 저널 {k_jnl:,}종")
+log(f"\n  [중첩 분해]")
+log(f"    출판사 사이            {100*ss_pub/sst2:>6.2f}%")
+log(f"    출판사 안의 저널 사이    {100*ss_jwp/sst2:>6.2f}%")
+log(f"    저널 안의 잔차          {100*ss_res/sst2:>6.2f}%")
+log(f"    합계                 {100*(ss_pub+ss_jwp+ss_res)/sst2:>6.2f}%")
+
+# 무작위 귀무: 출판사 안에서 저널 표를 섞는다. 크기 분포는 그대로 둔다.
+log(f"\n  [무작위 귀무 비교]")
+log("    각 출판사 안에서 저널 표를 무작위로 섞어 같은 크기 분포를 유지한 채 다시 계산한다.")
+log("    저널 구분이 아무 정보도 주지 않는다면 아래 값이 위의 '출판사 안의 저널 사이'와 같아야 한다.")
+vals = []
+for trial in range(3):
+    con.execute("DROP TABLE IF EXISTS perm")
+    con.execute(f"""CREATE TABLE perm AS
+WITH a AS (SELECT doi, member, y, row_number() OVER (PARTITION BY member ORDER BY random()) rn FROM bj),
+     b AS (SELECT member, jid, row_number() OVER (PARTITION BY member ORDER BY jid, doi) rn FROM bj)
+SELECT a.doi, a.member, b.jid, a.y FROM a JOIN b ON a.member=b.member AND a.rn=b.rn""")
+    rr = con.execute(f"""
+WITH pub AS (SELECT member, count(*) n_p, avg(y) p_p FROM perm GROUP BY 1),
+     jnl AS (SELECT jid, any_value(member) member, count(*) n_j, avg(y) p_j FROM perm GROUP BY 1)
+SELECT sum(j.n_j*(j.p_j-p.p_p)*(j.p_j-p.p_p)) FROM jnl j JOIN pub p USING (member)""").fetchone()[0]
+    vals.append(100 * rr / sst2)
+    log(f"    {trial+1}회차  {100*rr/sst2:>6.2f}%")
+log(f"\n    실제 {100*ss_jwp/sst2:.2f}%  대  무작위 평균 {sum(vals)/len(vals):.2f}%")
+log("    차이가 크면 저널 구분은 집단 수에서 온 것이 아니다.")
+
+log(f"\n  [참고] 두 eta^2의 단순 차이  {check('증분_저널', round(100*ss_jwp/sst2, 2), 2)}%p")
 
 log("\n" + "=" * 76)
 log("3. 집중도")
@@ -200,17 +256,12 @@ for q in (50, 80, 90, 95):
         log(f"    보완의 {q}%를 차지하는 데 필요한 출판사 수  {marks[q]:,}곳")
 
 log("\n" + "=" * 76)
-log("4. 원고에 넣을 문장의 재료")
+log("4. 원고 대조")
 log("=" * 76)
-log("""
-  아래 형태로 한 문단을 씁니다. 실제 값은 위 출력에서 가져옵니다.
-
-  본 연구는 정의된 코호트 전체를 관찰하므로 유의성 검정 대신 보완 여부의
-  변동이 어느 단위에서 발생하는지를 분산 분해로 확인하였다. 2023년 미기재
-  레코드의 보완 여부에서 출판사 구분이 설명하는 몫은 eta^2 = __%였고,
-  DOAJ 저널 구분은 __%, 출판연도는 __%였다. 저널을 출판사 위에 더해도
-  설명되는 몫은 __%p만 늘어난다. 즉 보완 여부를 가르는 단위는 개별 논문이나
-  저널이 아니라 출판사다.
+log(f"""
+  N               {check('N', N)}
+  보완            {check('보완', int(round(N*PBAR)))}
+  보완율          {check('보완율', round(100*PBAR, 2), 2)}%
 """)
 
 log(f"\n완료. 결과: {OUT}")
