@@ -12,6 +12,9 @@
 | `audit_calc.py` | (설명문 없음) 1. 2783-5502 저널의 누락 원인 / API DOI 예시: |
 | `burst.py` | (설명문 없음) 1. Wolters Kluwer 보강분의 재등록 월 (2024 스냅숏 기준 / 2. AIP 보강분의 재등록 월 (2026 스냅숏 기준 |
 | `calc_all.py` | (설명문 없음) CROSSREF_MAILTO / url ILIKE '%creativecommons.org%' AND coalesce(content_ver |
+| `check_288.py` | 본문 4.3절 "미기재 1,000건 이상 424개 출판사 가운데 288개(67.9%) 보완 0, 중앙값 0.0%" 확인. 결과 `check_288_out.txt` |
+| `check_table1.py` | 본문 표 1 "2023년판에서 논문 확인 11,955종·8,294,247건"의 정의 확인. 결과 `check_table1_out.txt` |
+| `check_two.py` | AIP Publishing 연도판별 기재율(15.8·0.7·0.6·96.1%)과 제외 9,181건 양 극단 가정(5.69–5.86%) 확인. 결과 `check_two_out.txt` |
 | `ci.py` | (설명문 없음) 외부 검증 표본의 신뢰구간 (Wilson 95% / 미기재 표본 CC 확인 |
 | `country.py` | 원본에서 국가·언어 열 이름 찾기 |
 | `decomp.py` | (설명문 없음) 신규 실제 {a_new:.3f} / 과거 실제 {a_old:.3f} / 과거구성 적용 {cf_old:.3 / 과거 구성 기준] 구성 효과 {a_new-cf_old:.3f}%p + 출판사 내 효과 {cf_old-a_ |
@@ -21,6 +24,7 @@
 | `dup_check.py` | (설명문 없음) 중복 DOI |
 | `external.py` | (설명문 없음) CROSSREF_MAILTO / 건 (2023·2026 모두 미기재 |
 | `external_pos.py` | (설명문 없음) CROSSREF_MAILTO / 건 (Crossref에 CC 기재됨 |
+| `fig3_by_publisher.py` | 본문 그림 3(출판사별 보완 레코드의 deposited 월, 소형 다중 그림)을 그린다 |
 | `figdata.py` | (설명문 없음) fig1_year_by_snapshot / fig2_monthly_backfill |
 | `final3.py` | (설명문 없음) 1. 출판사별 기재 시작 연도 (2026 스냅숏 기준, 미기재 1만 건 이상 / 2-1. 보강된 논문의 CC 종류 분포 |
 | `fixcheck.py` | (설명문 없음) A. 4.1절 100건의 내역 / B. 집중도: 상위 5개 출판사 미기재 실측 |
@@ -32,6 +36,7 @@
 | `missing_all.py` | (설명문 없음) CROSSREF_MAILTO / 종 — 이어서 진행 |
 | `missing_check.py` | (설명문 없음) CROSSREF_MAILTO / 미확인 저널 |
 | `missing_dois.py` | (설명문 없음) CROSSREF_MAILTO / 3_조건충족논문존재 |
+| `missing_types.py` | 2023년판 미기재의 유형 A·B·C 분류와 유형별 보완(보충자료 표 S2-1) |
 | `new_and_start.py` | (설명문 없음) 1. 신규 등록분 전체 / 2. 출판사별: 옛 논문 보강률 vs 신규분 기재율 |
 | `one_journal.py` | (설명문 없음) |
 | `panel185.py` | (설명문 없음) 패널 내 중간 부재 185건의 원인 |
@@ -65,5 +70,7 @@
 | `trans_check.py` | (설명문 없음) url ILIKE '%creativecommons.org%' AND coalesce(content_ver / 1. 비표준 표기 19,090의 단위와 포함 관계 |
 | `tz_check.py` | deposited 역행의 오프셋이 미국 동부 시간대와 맞는지 월별로 확인한다. |
 | `underest.py` | (설명문 없음) 출판사별 과소추정 폭 |
+| `variance.py` | 보완 여부의 중첩 분산 분해와 무작위 비교(본문 4.3절, 보충자료 S3.2) |
 | `verify.py` | (설명문 없음) |
 | `why.py` | (설명문 없음) CROSSREF_MAILTO / container-title |
+| `wiley_loss.py` | 소실 1,012건의 출판사별 구성(보충자료 S6) |

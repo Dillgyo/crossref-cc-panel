@@ -2,11 +2,12 @@
 
 Crossref 공개 데이터 파일(Public Data File) 네 개 시점에서 CC 라이선스 메타데이터를 추출하고, 동일 DOI 코호트의 기재 상태 변화를 추적하는 분석 코드이다.
 
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.23019543.svg)](https://doi.org/10.5281/zenodo.23019543)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.23019542.svg)](https://doi.org/10.5281/zenodo.23019542)
 
 논문: (게재 확정 후 서지사항 기재)
 저자: 이하형 (Lee, Hahyeong) — [ORCID 0009-0005-5282-8584](https://orcid.org/0009-0005-5282-8584), Hanyang Women's University Library
-보존본: [10.5281/zenodo.23019543](https://doi.org/10.5281/zenodo.23019543) (Zenodo, 모든 판본을 가리키는 DOI)
+보존본: [10.5281/zenodo.23019542](https://doi.org/10.5281/zenodo.23019542) (Zenodo, 모든 판본을 가리키는 Concept DOI)  
+판본별 DOI: v1.0.0 [10.5281/zenodo.23019543](https://doi.org/10.5281/zenodo.23019543), v1.1.0 [10.5281/zenodo.23060411](https://doi.org/10.5281/zenodo.23060411). 논문의 수치는 v1.1.0(커밋 `d4e733f`)의 코드로 산출하였다.
 
 > **정리 중** — 논문 게재 시점에 이 문단을 삭제하고 서지사항을 적는다. 그때까지 각 스크립트를 다시 실행하여 논문 수치와 대조한다.
 
@@ -50,7 +51,7 @@ url ILIKE '%creativecommons.org%'
   AND coalesce(content_version, '') IN ('vor', 'am', 'unspecified')
 ```
 
-`tdm`은 제외한다. 이 조건을 바꾸면 논문의 모든 수치가 달라지므로, 재현 시에는 스크립트별로 이 조건이 동일한지 확인한다. `tdm`을 포함한 경우와 `unspecified`를 제외한 경우의 민감도는 보충자료 표 S3에 있다.
+`tdm`은 제외한다. 이 조건을 바꾸면 논문의 모든 수치가 달라지므로, 재현 시에는 스크립트별로 이 조건이 동일한지 확인한다. `tdm`을 포함한 경우와 `unspecified`를 제외한 경우의 민감도는 보충자료 표 S5에 있다.
 
 ### 전자우편 환경 변수
 
@@ -112,9 +113,9 @@ DOAJ 2026년 8월 17일판 공개 덤프에서 출발한다. 덤프 자체는 �
 
 `data/doaj_panel_journals.csv`는 분석 모집단 13,806종이다. 열은 저널명, 인쇄판 ISSN, 온라인판 ISSN, 출판사, 저널 라이선스, DOAJ 등재일시, OA 시작연도이며, 원본 덤프에 다음 세 필터를 적용한 결과이다.
 
-- 기록된 라이선스가 **모두** CC 계열인 저널만 남긴다. CC와 그 밖의 라이선스를 함께 기록한 저널 24종은 빠진다(23,325 → 23,149).
+- 기록된 라이선스가 **모두** CC 계열인 저널만 남긴다. CC를 기록하지 않은 저널 152종과 CC와 그 밖의 라이선스를 함께 기록한 저널 24종, 합계 176종이 빠진다(23,325 → 23,149).
 - DOAJ 등재일이 2021년 12월 31일 이전인 저널만 남긴다. 관찰 시작 시점보다 충분히 앞서 등재된 저널로 한정하기 위한 것이다(23,149 → 14,030).
-- OA 시작연도가 DOAJ 등재연도보다 늦게 기록된 저널 224종을 제외한다(14,030 → 13,806). 이들을 포함한 민감도 분석은 논문 4.9절에 있다.
+- OA 시작연도가 DOAJ 등재연도보다 늦게 기록된 저널 224종을 제외한다(14,030 → 13,806). 이들을 포함한 민감도 분석은 논문 4.5절과 보충자료 표 S5에 있다.
 
 `data/doaj_excluded_224.csv`는 위 마지막 단계에서 제외한 224종의 목록이다. `09_excluded_224.py`가 차집합으로 복원하여 만든다.
 
@@ -168,19 +169,39 @@ python 01_extract.py D:\crossref\April_2023_Public_Data_File_from_Crossref.tar 2
 
 | 스크립트 | 논문의 어느 부분 |
 |---|---|
-| `05_tables.py` | 본문 표 1–9 전부, 그림 1–3의 작도용 데이터, 4.8절 라이선스 시작일 |
-| `06_figures.py` | `05_tables.py`가 저장한 CSV로 그림 1–3을 그린다 |
-| `07_supplement.py` | 보충자료 표 S1–S5, 본문 4.4·4.5·4.9절 |
-| `08_unpaywall.py` | 보충자료 표 S6, 본문 5.4절 |
-| `09_excluded_224.py` | 제외한 224종을 복원하고 표 S3의 해당 행을 재계산. `data/doaj_excluded_224.csv`를 만든다 |
-| `10_member_stable.py` | member가 두 연도판에서 같은 부분집합으로 4.4절 집중도를 다시 계산 |
+| `05_tables.py` | 본문 표 1–4와 그림 1·2의 작도용 데이터, 보충자료 일부(아래 대응표) |
+| `06_figures.py` | `05_tables.py`가 저장한 CSV로 그림을 그린다. 본문 그림 1은 `fig1_coverage_by_year`, 그림 2는 `fig3_addition_rate_bins`이다. 본문 그림 3은 `verify/fig3_by_publisher.py`가 그린다 |
+| `07_supplement.py` | 보충자료 표 S5(민감도)·S7(집중도), 본문 4.1절(Frontiers)·4.3절(집중도와 deposited 월). 스크립트의 표 S1·S2·S5 출력은 `docs/supplementary_notes.md`에 정리하였다 |
+| `08_unpaywall.py` | 보충자료 S9, 본문 5.3절 |
+| `09_excluded_224.py` | 제외한 224종을 복원하고 보충자료 표 S5의 해당 행과 본문 4.5절의 범위를 재계산. `data/doaj_excluded_224.csv`를 만든다 |
+| `10_member_stable.py` | member가 두 연도판에서 같은 부분집합으로 집중도를 다시 계산(본문 4.5절, 보충자료 S3.1) |
 
 `05`–`10`은 논문에 실린 값을 스크립트 안의 `EXPECTED`에 담고 있으며, 계산 결과마다 `일치` 또는 `불일치 (원고 …)`를 함께 출력한다. 재현 여부를 출력만 보고 판단할 수 있다.
 
+`05_tables.py`의 출력에 붙은 표·그림 번호는 스크립트 안의 번호이며 논문의 번호와 다르다. 대응은 다음과 같다.
+
+| `05_tables.py` 출력 | 논문 |
+|---|---|
+| 표 1 모집단과 분석 패널의 구성 | 본문 표 1 |
+| 표 2 시점별 CC 기재 상태 | 본문 4.1절, 보충자료 표 S6-1 |
+| 표 3 상태 전이 | 본문 표 2 |
+| 표 4 후속 등록 여부별 보완 | 본문 4.2절, 보충자료 표 S6-2 |
+| 표 5 출판사별 현황 | 본문 표 3, 보충자료 S3.1 |
+| 표 6 저널 단위 보완율 분포 | 본문 그림 2, 보충자료 표 S3-1 |
+| 표 7 신규 등록 레코드의 기재율 | 본문 표 4 |
+| 표 8 기재율 격차의 분해 | 보충자료 S4.2 |
+| 표 9 출판사별 미기재율 | 보충자료 S8 |
+| 4.8 보완된 라이선스의 시작일 | `docs/supplementary_notes.md` |
+| 그림 1 (`fig1_year_by_snapshot.csv`) | 본문 그림 1 |
+| 그림 2 (`fig2_monthly_backfill.csv`) | 본문 그림 3의 입력 일부(`verify/fig3_by_publisher.py`) |
+| 그림 3 (`fig3_journal_backfill.csv`) | 본문 그림 2 |
+
+`07_supplement.py`의 출력 번호도 논문과 다르다. 표 S3은 보충자료 표 S5, 표 S4와 4.4절(월 집중)은 보충자료 S7과 본문 4.3절, 4.9절 수치는 보충자료 S5의 본문에 해당한다. 표 S1·S2·S5는 `docs/supplementary_notes.md`로 옮겼다.
+
 두 항목은 다음 규칙을 따른다.
 
-- 그림 2는 라이선스가 **처음 확인된** 스냅숏의 `deposited` 월로 집계한다. 논문 그림 2의 캡션에 기술된 규칙이다.
-- 표 6과 그림 3은 저널을 **DOAJ 저널 단위**로 묶는다. 논문 3.2절이 저널 연결을 ISSN으로 수행한다고 밝힌 것과 일치시키기 위한 것이다. 대조를 위해 레코드의 `container_title`로 묶은 값도 함께 출력한다.
+- 보완 레코드의 `deposited` 월(본문 그림 3)은 라이선스가 **처음 확인된** 연도판의 `deposited` 월로 집계한다. 논문 그림 3의 캡션에 기술된 규칙이다.
+- 저널 단위 분포(본문 그림 2)는 저널을 **DOAJ 저널 단위**로 묶는다. 논문이 저널 연결을 ISSN으로 수행한다고 밝힌 것과 일치시키기 위한 것이다. 대조를 위해 레코드의 `container_title`로 묶은 값도 함께 출력한다.
 
 경로는 환경 변수로 덮어쓸 수 있다.
 
@@ -194,7 +215,7 @@ set CROSSREF_DOAJ=E:\crossref-cc-panel\data\doaj_panel_journals.csv
 
 ### 4.3 verify/
 
-논문의 수치를 재현하는 데 필수는 아니다. 분석 과정과 심사 대응에서 개별 항목을 확인하려고 그때그때 쓴 코드 59개이며, 순서대로 실행하는 파이프라인이 아니다. 본체와 달리 경로가 하드코딩되어 있고 입력 파일을 가린다. 파일별 설명은 `verify/README.md`에 있다.
+논문의 수치를 재현하는 데 필수는 아니다. 분석 과정과 심사 대응에서 개별 항목을 확인하려고 그때그때 쓴 코드 66개이며, 순서대로 실행하는 파이프라인이 아니다. 본체와 달리 경로가 하드코딩되어 있고 입력 파일을 가린다. 파일별 설명은 `verify/README.md`에 있다.
 
 ## 5. 폴더 구조
 
@@ -210,13 +231,15 @@ crossref-cc-panel/
 ├── 02_check_snapshot.py     추출 점검
 ├── 03_base_2023.py          기준 코호트
 ├── 04_state_panel.py        패널 구성
-├── 05_tables.py             본문 표 1–9, 그림 데이터
-├── 06_figures.py            그림 1–3
-├── 07_supplement.py         표 S1–S5
-├── 08_unpaywall.py          표 S6
+├── 05_tables.py             본문 표 1–4, 그림 데이터
+├── 06_figures.py            그림
+├── 07_supplement.py         보충자료 표 S5·S7 등
+├── 08_unpaywall.py          보충자료 S9
 ├── 09_excluded_224.py       제외 224종
 ├── 10_member_stable.py      member 유지 집합
-├── verify/                  점검 코드 59개 + README.md
+├── verify/                  점검 코드 66개 + README.md
+├── docs/
+│   └── supplementary_notes.md  논문 보충자료에서 뺀 표 S1·S2·S5
 └── data/
     ├── doaj_panel_journals.csv   분석 모집단 13,806종
     ├── doaj_excluded_224.csv     제외한 224종
@@ -232,7 +255,7 @@ crossref-cc-panel/
 
 DOAJ 덤프는 시점에 따라 내용이 바뀐다. `data/doaj_panel_journals.csv`는 2026년 8월 17일판에서 만든 것이므로, 새 덤프로 다시 만들면 저널 수와 하한 연도가 달라진다.
 
-Crossref REST API와 Unpaywall API를 쓰는 스크립트는 실행 시점의 응답을 받는다. 공개 데이터 파일은 고정되어 있으나 API는 계속 갱신되므로, 논문에 보고한 API 대조 수치와 같은 값이 나오지는 않는다. 이 점은 논문 5.4절에 한계로 적었고, 논문의 값을 재현하려면 `data/`에 넣어 둔 응답 파일을 쓴다(3.4절).
+Crossref REST API와 Unpaywall API를 쓰는 스크립트는 실행 시점의 응답을 받는다. 공개 데이터 파일은 고정되어 있으나 API는 계속 갱신되므로, 논문에 보고한 API 대조 수치와 같은 값이 나오지는 않는다. 이 점은 논문 5.3절에 한계로 적었고, 논문의 값을 재현하려면 `data/`에 넣어 둔 응답 파일을 쓴다(3.4절).
 
 ## 7. 라이선스
 
