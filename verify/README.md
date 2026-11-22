@@ -70,7 +70,9 @@
 | `trans_check.py` | (설명문 없음) url ILIKE '%creativecommons.org%' AND coalesce(content_ver / 1. 비표준 표기 19,090의 단위와 포함 관계 |
 | `tz_check.py` | deposited 역행의 오프셋이 미국 동부 시간대와 맞는지 월별로 확인한다. |
 | `underest.py` | (설명문 없음) 출판사별 과소추정 폭 |
-| `variance.py` | 보완 여부의 중첩 분산 분해와 무작위 비교(본문 4.3절, 보충자료 S3.2) |
+| `recheck_v120.py` | v1.2.0 원고 크로스체크에서 새로 계산한 수치 54개 항목 재검증(후속 등록·시간대, member 결측·집중도, 2025년판 종점, AIP 중간 변동, content-version, 신규 등록 비교, 탈락 사유). 결과 `recheck_out.txt` |
+| `recheck_v120_part2.py` | 본문 4.3절 변동 분해(최빈 member 귀속 47.03/25.71/27.27%, 원래 member 47.09/25.78/27.13%)와 순열(0.12–0.14%), 그림 3 설명의 104건·97건 재검증. 결과 `recheck2_out.txt` |
+| `variance.py` | 보완 여부의 분산 분해와 무작위 비교. 원래 member 귀속 비교값(보충자료 S3.2). 논문 4.3절 수치는 `recheck_v120_part2.py` |
 | `verify.py` | (설명문 없음) |
 | `why.py` | (설명문 없음) CROSSREF_MAILTO / container-title |
 | `wiley_loss.py` | 소실 1,012건의 출판사별 구성(보충자료 S6) |

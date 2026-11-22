@@ -7,7 +7,7 @@ Crossref 공개 데이터 파일(Public Data File) 네 개 시점에서 CC 라�
 논문: (게재 확정 후 서지사항 기재)
 저자: 이하형 (Lee, Hahyeong) — [ORCID 0009-0005-5282-8584](https://orcid.org/0009-0005-5282-8584), Hanyang Women's University Library
 보존본: [10.5281/zenodo.23019542](https://doi.org/10.5281/zenodo.23019542) (Zenodo, 모든 판본을 가리키는 Concept DOI)  
-판본별 DOI: v1.0.0 [10.5281/zenodo.23019543](https://doi.org/10.5281/zenodo.23019543), v1.1.0 [10.5281/zenodo.23060411](https://doi.org/10.5281/zenodo.23060411). 논문의 수치는 v1.1.0(커밋 `d4e733f`)의 코드로 산출하였다.
+판본별 DOI: v1.0.0 [10.5281/zenodo.23019543](https://doi.org/10.5281/zenodo.23019543), v1.1.0 [10.5281/zenodo.23060411](https://doi.org/10.5281/zenodo.23060411). 논문의 수치는 v1.2.0의 코드로 산출하였다. v1.2.0에서 원고 검토 중 새로 계산한 수치의 재검증 스크립트(`verify/recheck_v120.py`, `verify/recheck_v120_part2.py`)를 더했다.
 
 > **정리 중** — 논문 게재 시점에 이 문단을 삭제하고 서지사항을 적는다. 그때까지 각 스크립트를 다시 실행하여 논문 수치와 대조한다.
 
@@ -109,7 +109,9 @@ DOAJ 2026년 8월 17일판 공개 덤프에서 출발한다. 덤프 자체는 �
 | 파일 | SHA-256 |
 |---|---|
 | `doaj_journalcsv_20260817_2320_utf8.csv` (원본 덤프, 저장소에 없음) | `b30e555ae817d34db618c696122a6e76f90cca8b3827648b653c4a5ca048782b` |
-| `data/doaj_panel_journals.csv` (필터 적용 결과) | `76ef25e1ec2a95828804e2bf558fcbbf9d3a0b251f9cced59102fb824db8632e` |
+| `data/doaj_panel_journals.csv` (필터 적용 결과, 저장소의 LF 줄바꿈 기준) | `23d8e3055d5aec8b97f482918bd6f51cdb7ff954556f528adf0e9d56b3312412` |
+
+`data/`의 CSV는 줄바꿈 변환 없이 LF 그대로 받도록 `.gitattributes`에 지정하였다. v1.1.1까지 이 표에 적은 `76ef25e1…`는 같은 내용을 CRLF 줄바꿈으로 저장한 파일의 값이다.
 
 `data/doaj_panel_journals.csv`는 분석 모집단 13,806종이다. 열은 저널명, 인쇄판 ISSN, 온라인판 ISSN, 출판사, 저널 라이선스, DOAJ 등재일시, OA 시작연도이며, 원본 덤프에 다음 세 필터를 적용한 결과이다.
 
@@ -260,5 +262,7 @@ Crossref REST API와 Unpaywall API를 쓰는 스크립트는 실행 시점의 �
 ## 7. 라이선스
 
 코드는 MIT 라이선스로 공개한다.
+
+`data/doaj_panel_journals.csv`와 `data/doaj_excluded_224.csv`는 DOAJ(Directory of Open Access Journals) 저널 메타데이터(2026년 8월 17일판)에서 파생한 자료이며, DOAJ 메타데이터의 라이선스에 따라 CC BY-SA 4.0(https://creativecommons.org/licenses/by-sa/4.0/)으로 배포한다. 출처: DOAJ, https://doaj.org. 원본에서 필터로 저널을 골라내고 열을 줄였다(3.3절).
 
 Crossref 공개 데이터 파일과 DOAJ 덤프 자체는 각 배포처의 조건을 따른다. 이 저장소는 원본 데이터를 재배포하지 않는다.

@@ -1,4 +1,4 @@
-# 저장소 안에서는 LF로 보관한다. Windows 작업 사본에서는 CRLF로 받는다.
+# 저장소 안에서는 LF로 보관한다. data/의 CSV는 해시가 환경마다 달라지지 않도록 변환하지 않는다.
 * text=auto eol=lf
 
 *.py    text eol=lf
@@ -6,6 +6,7 @@
 *.txt   text eol=lf
 *.cff   text eol=lf
 *.csv   text eol=lf
+data/*.csv -text
 *.jsonl text eol=lf
 
 *.png   binary
