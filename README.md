@@ -7,7 +7,7 @@ Crossref 공개 데이터 파일(Public Data File) 네 개 시점에서 CC 라�
 논문: (게재 확정 후 서지사항 기재)
 저자: 이하형 (Lee, Hahyeong) — [ORCID 0009-0005-5282-8584](https://orcid.org/0009-0005-5282-8584), Hanyang Women's University Library
 보존본: [10.5281/zenodo.23019542](https://doi.org/10.5281/zenodo.23019542) (Zenodo, 모든 판본을 가리키는 Concept DOI)  
-판본별 DOI: v1.0.0 [10.5281/zenodo.23019543](https://doi.org/10.5281/zenodo.23019543), v1.1.0 [10.5281/zenodo.23060411](https://doi.org/10.5281/zenodo.23060411). 논문의 수치는 v1.2.0의 코드로 산출하였다. v1.2.0에서 원고 검토 중 새로 계산한 수치의 재검증 스크립트(`verify/recheck_v120.py`, `verify/recheck_v120_part2.py`)를 더했다.
+판본별 DOI: v1.0.0 [10.5281/zenodo.23019543](https://doi.org/10.5281/zenodo.23019543), v1.1.0 [10.5281/zenodo.23060411](https://doi.org/10.5281/zenodo.23060411), v1.2.0 [10.5281/zenodo.24444008](https://doi.org/10.5281/zenodo.24444008). 논문의 수치는 v1.2.0(커밋 `9e4a19b`)의 코드로 산출하였다. v1.2.0에서 원고 검토 중 새로 계산한 수치의 재검증 스크립트(`verify/recheck_v120.py`, `verify/recheck_v120_part2.py`)를 더했다.
 
 > **정리 중** — 논문 게재 시점에 이 문단을 삭제하고 서지사항을 적는다. 그때까지 각 스크립트를 다시 실행하여 논문 수치와 대조한다.
 

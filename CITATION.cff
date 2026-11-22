@@ -22,6 +22,9 @@ identifiers:
   - type: doi
     value: "10.5281/zenodo.23060411"
     description: "v1.1.0 버전 DOI"
+  - type: doi
+    value: "10.5281/zenodo.24444008"
+    description: "v1.2.0 버전 DOI"
 license: MIT
 version: 1.2.0
 date-released: "2026-11-22"
